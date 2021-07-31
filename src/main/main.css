@@ -1,0 +1,11 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.main__header{
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 20px;
+}
