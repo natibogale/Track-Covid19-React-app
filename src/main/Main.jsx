@@ -3,23 +3,28 @@ import { MenuItem, FormControl, Select, Card, CardContent } from "@material-ui/c
 import "./main.css";
 import InfoBox from "../InfoBox";
 import Map from "../Map";
+import Table from "../Table";
+import { sortData } from "../util";
+import LineGraph from "../LineGraph";
+
 
 function Main() {
     const [countries, setCountries] = useState([]);
     const [country, setCountry] = useState("worldwide");
     const [countryInfo, setCountryInfo] = useState({});
+    const [tableData, setTableData] = useState([]);
 
     // https://disease.sh/v3/covid-19/countries
-    // going to using USEEFFECT = it runs a piece of code based o a given condition
+    // going to use USEEFFECT = it runs a piece of code based o a given condition
 
 
-useEffect(() => {
-    fetch("https://disease.sh/v3/covid-19/all")
-    .then(response => response.json())
-    .then(data => {
-        setCountryInfo(data)
-    }); 
-}, []);
+    useEffect(() => {
+        fetch("https://disease.sh/v3/covid-19/all")
+            .then(response => response.json())
+            .then(data => {
+                setCountryInfo(data);
+            });
+    }, []);
 
 
     useEffect(() => {
@@ -27,10 +32,13 @@ useEffect(() => {
             await fetch("https://disease.sh/v3/covid-19/countries")
                 .then((response) => response.json())
                 .then((data) => {
-                    const countries = data.map((country) => ({
+                    const countries = data.map((country) =>({
                         name: country.country,
                         value: country.countryInfo.iso2,
                     }));
+
+                    const sortedData = sortData(data);
+                    setTableData(sortedData);
                     setCountries(countries);
                 });
         };
@@ -41,18 +49,18 @@ useEffect(() => {
         const countryCode = event.target.value;
         setCountry(countryCode);
         const url = countryCode === "worldwide"
-        ? "https://disease.sh/v3/covid-19/all"
-        : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
+            ? "https://disease.sh/v3/covid-19/all"
+            : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
 
         await fetch(url)
             .then(response => response.json())
             .then(data => {
-                setCountryInfo(data)
+                setCountryInfo(data);
                 setCountry(countryCode);
             });
     };
     return (
-        <div class="main">
+        <div className="main">
             <div className="main__left">
                 <div className="main__header">
                     {/*  header */}
@@ -87,11 +95,15 @@ useEffect(() => {
 
             <Card className="main__right">
                 <CardContent>
-                    <h3>Live cases by country</h3>
+                    <h3>Live Cases by Country</h3>
                     {/* table */}
+
+                    <Table countries={tableData} />
 
                     <h3>Worldwide new cases</h3>
                     {/* graph */}
+
+                    <LineGraph />
                 </CardContent>
 
             </Card>

@@ -21,6 +21,13 @@ body {
 
 .main__left {
   flex: 0.9;
+  padding: 0 20px;
+}
+.main__right{
+  flex: 0.3;
+  margin: 0 20px ;
+  padding: 0 20px;
+
 }
 
 .main__stats {
