@@ -2,16 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import numeral from "numeral";
 
+
 const options = {
-  legend: {
-    display: false,
+
+  plugins: {
+    legend: false,
   },
   elements: {
     point: {
-      radius: 0,
+      radius: 1.5,
     },
   },
-  maintainAspectRatio: false,
+ maintainAspectRatio: false,
   tooltips: {
     mode: "index",
     intersect: false,
@@ -27,17 +29,16 @@ const options = {
         type: "time",
         time: {
           format: "MM/DD/YY",
-          tooltipFormat: "ll",
+          tooltipFormat: "li",
         },
       },
     ],
     yAxes: [
       {
-        gridLines: {
-          display: false,
-        },
+          gridLines: {
+            display: false,
+          },        
         ticks: {
-          // Include a dollar sign in the ticks
           callback: function (value, index, values) {
             return numeral(value).format("0a");
           },
@@ -63,23 +64,23 @@ const buildChartData = (data, casesType) => {
   return chartData;
 };
 
-function LineGraph({ casesType = "cases"}) {
+function LineGraph({ casesType = "cases" }) {
+
   const [data, setData] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetch("https://disease.sh/v3/covid-19/historical/all?lastdays=90")
+      await fetch("https://pure-lake-03640.herokuapp.com/https://disease.sh/v3/covid-19/historical/all?lastdays=90")
         .then((response) => {
           return response.json();
         })
         .then((data) => {
           let chartData = buildChartData(data, casesType);
           setData(chartData);
-          console.log(chartData);
+        //   console.log(chartData);
           // buildChart(chartData);
         });
     };
-
     fetchData();
   }, [casesType]);
 
@@ -87,6 +88,7 @@ function LineGraph({ casesType = "cases"}) {
     <div>
       {data?.length > 0 && (
         <Line
+          options = { options }
           data={{
             datasets: [
               {
@@ -94,10 +96,10 @@ function LineGraph({ casesType = "cases"}) {
                 borderColor: "#CC1034",
                 data: data,
                 fill:true,
+                
               },
             ],
           }}
-          options={options}
         />
       )}
     </div>

@@ -6,6 +6,7 @@ import Map from "../Map";
 import Table from "../Table";
 import { sortData } from "../util";
 import LineGraph from "../LineGraph";
+import 'leaflet/dist/leaflet.css';
 
 
 function Main() {
@@ -13,6 +14,8 @@ function Main() {
     const [country, setCountry] = useState("worldwide");
     const [countryInfo, setCountryInfo] = useState({});
     const [tableData, setTableData] = useState([]);
+    const [mapCenter, setMapCenter] = useState({ lat: 34.80746, lng: -40.4796 });
+    const [mapZoom, setMapZoom] = useState(3);
 
     // https://disease.sh/v3/covid-19/countries
     // going to use USEEFFECT = it runs a piece of code based o a given condition
@@ -29,36 +32,47 @@ function Main() {
 
     useEffect(() => {
         const getCountriesData = async () => {
-            await fetch("https://disease.sh/v3/covid-19/countries")
-                .then((response) => response.json())
-                .then((data) => {
-                    const countries = data.map((country) =>({
-                        name: country.country,
-                        value: country.countryInfo.iso2,
-                    }));
-
-                    const sortedData = sortData(data);
-                    setTableData(sortedData);
-                    setCountries(countries);
-                });
+          await fetch('https://disease.sh/v3/covid-19/countries')
+            .then((response) => response.json())
+            .then((data) => {
+              const countries = data.map((country) => ({
+                name: country.country, 
+                value: country.countryInfo.iso2 
+              }));
+    
+              const sortedData = sortData(data);
+              setTableData(sortedData);
+              setCountries(countries);
+            });
         };
+    
         getCountriesData();
-    }, []);
+      }, []);
+    
 
-    const onCountryChange = async (event) => {
+
+      const onCountryChange = async (event) => {
         const countryCode = event.target.value;
         setCountry(countryCode);
-        const url = countryCode === "worldwide"
-            ? "https://disease.sh/v3/covid-19/all"
-            : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
-
+    
+        const url = countryCode === 'worldwide'
+          ? 'https://disease.sh/v3/covid-19/all'
+          : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
+    
         await fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                setCountryInfo(data);
-                setCountry(countryCode);
-            });
-    };
+          .then(response => response.json())
+          .then(data => {
+            setCountry(countryCode);
+            setCountryInfo(data);
+    
+            setMapCenter([data.countryInfo.lat, data.countryInfo.long]);
+            
+            setMapZoom(4);
+          })
+      };
+
+
+
     return (
         <div className="main">
             <div className="main__left">
@@ -90,11 +104,17 @@ function Main() {
                     {/* info box  corona virus recoveries*/}
                     {/* info box */}
                 </div>
-                <Map />
+
+                <Map 
+                center={mapCenter} 
+                zoom={mapZoom}
+                />
+
+
             </div>
 
             <Card className="main__right">
-                <CardContent>
+                <CardContent className="main__rightContent">
                     <h3>Live Cases by Country</h3>
                     {/* table */}
 
@@ -104,6 +124,7 @@ function Main() {
                     {/* graph */}
 
                     <LineGraph />
+
                 </CardContent>
 
             </Card>
